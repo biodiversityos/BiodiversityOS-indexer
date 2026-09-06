@@ -59,7 +59,11 @@ fi
 onchain=$(curl -s -m 10 -X POST -H 'Content-Type: application/json' \
   -d "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"$REGISTRY\",\"data\":\"0xdbde207d\"},\"latest\"],\"id\":1}" \
   "$RPC_URL" | grep -o '"result":"0x[0-9a-f]*"' | grep -o '0x[0-9a-f]*')
-if [ -n "$onchain" ] && [ -n "${records:-}" ]; then
+if [ -z "$onchain" ]; then
+  # Silently skipping this check would hide a wrong REGISTRY or a dead RPC, and
+  # the whole point of the monitor is that nothing fails quietly.
+  fail "could not read nextRecordId from $REGISTRY — wrong address or RPC down?"
+elif [ -n "${records:-}" ]; then
   expected=$(( $((onchain)) - 1 ))
   note "on chain: $expected records"
   # Voided records legitimately reduce the indexed count, so only flag a shortfall

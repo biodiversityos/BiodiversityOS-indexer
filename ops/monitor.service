@@ -1,0 +1,9 @@
+[Unit]
+Description=BiodiversityOS deployment health check
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/biodiversityos/ops/monitor.sh
+# Set ALERT_WEBHOOK here to have failures delivered somewhere you read.
+# Environment=ALERT_WEBHOOK=https://hooks.slack.com/services/...

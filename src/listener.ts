@@ -3,9 +3,20 @@ import { celoSepolia } from "viem/chains";
 import prisma from "./db.js";
 import { REGISTRY_ABI } from "./abi.js";
 import { parseSpecies, parseBehavior } from "./types.js";
+import { recordPollSuccess, recordPollFailure } from "./health.js";
 
 const POLL_INTERVAL_MS = 5_000;
 const MAX_BLOCK_RANGE = 5_000n;
+
+/**
+ * How far behind the chain head to stay.
+ *
+ * Records live in events, and an event from a block that later gets reorganised
+ * out would otherwise sit in the database forever with nothing to notice it —
+ * the indexer never looks back. Staying behind the tip means only blocks deep
+ * enough to be settled are ever read.
+ */
+const CONFIRMATIONS = 12n;
 
 /** Coordinates are stored on-chain as degrees x 1e6. */
 function parseCoord(value: bigint): number {
@@ -79,8 +90,12 @@ export async function startListener(
 
   async function poll() {
     try {
-      const latest = await client.getBlockNumber();
-      if (lastBlock + 1n > latest) return;
+      const head = await client.getBlockNumber();
+      const latest = head > CONFIRMATIONS ? head - CONFIRMATIONS : 0n;
+      if (latest === 0n || lastBlock + 1n > latest) {
+        recordPollSuccess();
+        return;
+      }
 
       // Advance the cursor per chunk, so a failure midway does not force a
       // re-scan of everything already committed.
@@ -104,12 +119,15 @@ export async function startListener(
         await prisma.indexerState.update({ where: { id: 1 }, data: { lastBlock } });
 
         if (logs.length > 0) {
-          console.log(`Processed ${logs.length} log(s) up to block ${chunkTo}`);
+          console.log(`Processed ${logs.length} log(s) up to block ${chunkTo} (head ${head})`);
         }
         chunkFrom = chunkTo + 1n;
       }
+      recordPollSuccess();
     } catch (err) {
-      console.error("Poll error:", err instanceof Error ? err.message : err);
+      const message = err instanceof Error ? err.message : String(err);
+      recordPollFailure(message);
+      console.error("Poll error:", message);
     }
   }
 

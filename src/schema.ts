@@ -4,9 +4,11 @@ export const typeDefs = /* GraphQL */ `
     caribbean_reef_shark
     great_hammerhead_shark
     hammerhead_shark
+    scalloped_hammerhead_shark
     bull_shark
     tiger_shark
     whale_shark
+    sandbar_shark
     unknown
   }
 
@@ -27,9 +29,13 @@ export const typeDefs = /* GraphQL */ `
     species: Species!
     count: Int!
     behavior: Behavior!
-    observedAt: String!
+    "Null when the observation date was never recorded."
+    observedAt: String
     mediaUrl: String
     comment: String
+    siteName: String
+    depthFt: Int
+    sizeClass: String
     reporter: String!
     blockNumber: String!
     txHash: String!
@@ -43,10 +49,16 @@ export const typeDefs = /* GraphQL */ `
     hasMore: Boolean!
   }
 
+  type SpeciesCount {
+    species: Species!
+    count: Int!
+  }
+
   input RecordsFilter {
     species: Species
     behavior: Behavior
     reporter: String
+    siteName: String
     observedAtGt: String
     observedAtGte: String
     observedAtLt: String
@@ -54,7 +66,12 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Query {
+    "limit is capped at 1000 by the server."
     records(limit: Int = 50, offset: Int = 0, filter: RecordsFilter): RecordsPage!
     record(id: Int!): Record
+    "Distinct official dive-site names present in the index."
+    sites: [String!]!
+    "Sighting totals per species, honouring the same filter as records."
+    speciesCounts(filter: RecordsFilter): [SpeciesCount!]!
   }
 `;

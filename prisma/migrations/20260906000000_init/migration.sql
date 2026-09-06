@@ -1,3 +1,6 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateTable
 CREATE TABLE "Record" (
     "id" INTEGER NOT NULL,
@@ -6,9 +9,12 @@ CREATE TABLE "Record" (
     "species" TEXT NOT NULL,
     "count" INTEGER NOT NULL,
     "behavior" TEXT NOT NULL,
-    "observedAt" TIMESTAMP(3) NOT NULL,
+    "observedAt" TIMESTAMP(3),
     "mediaUrl" TEXT,
     "comment" TEXT,
+    "siteName" TEXT,
+    "depthFt" INTEGER,
+    "sizeClass" TEXT,
     "reporter" TEXT NOT NULL,
     "blockNumber" BIGINT NOT NULL,
     "txHash" TEXT NOT NULL,
@@ -25,3 +31,13 @@ CREATE TABLE "IndexerState" (
 
     CONSTRAINT "IndexerState_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE INDEX "Record_species_idx" ON "Record"("species");
+
+-- CreateIndex
+CREATE INDEX "Record_observedAt_idx" ON "Record"("observedAt");
+
+-- CreateIndex
+CREATE INDEX "Record_siteName_idx" ON "Record"("siteName");
+

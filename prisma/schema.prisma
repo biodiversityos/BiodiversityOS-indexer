@@ -8,20 +8,28 @@ datasource db {
 }
 
 model Record {
-  id          Int      @id
+  id          Int       @id
   latitude    Float
   longitude   Float
   species     String
   count       Int
   behavior    String
-  observedAt  DateTime
+  /// Null when the field date is genuinely unknown, rather than faking epoch 0.
+  observedAt  DateTime?
   mediaUrl    String?
   comment     String?
+  siteName    String?
+  depthFt     Int?
+  sizeClass   String?
   reporter    String
   blockNumber BigInt
   txHash      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([species])
+  @@index([observedAt])
+  @@index([siteName])
 }
 
 model IndexerState {

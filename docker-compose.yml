@@ -26,7 +26,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      default:
+      bos:
+        # The frontend reaches the indexer at this name. Going out through the
+        # public hostname instead means DNS, hairpin NAT and nginx for a call
+        # between two containers on the same host — and Docker's resolver
+        # intermittently returns EAI_AGAIN on that path, which empties the map.
+        aliases:
+          - indexer
     restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  bos:
+    external: true

@@ -113,6 +113,15 @@ export async function startListener(
     }
   }
 
-  setInterval(poll, POLL_INTERVAL_MS);
-  poll();
+  // Self-scheduling rather than setInterval: a poll that outruns the interval
+  // (the first one after a bulk import easily does) would otherwise overlap with
+  // the next, and both would read the same lastBlock and re-fetch the same range.
+  async function loop() {
+    for (;;) {
+      await poll();
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    }
+  }
+
+  void loop();
 }

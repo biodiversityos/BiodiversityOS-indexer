@@ -12,6 +12,10 @@ export enum Species {
 }
 
 export enum Behavior {
+  // swimming and sheltering are the two things these reporters describe most
+  // often; the enum was originally written without reference to the data.
+  SWIMMING   = "swimming",
+  SHELTERING = "sheltering",
   FEEDING   = "feeding",
   MIGRATING = "migrating",
   RESTING   = "resting",

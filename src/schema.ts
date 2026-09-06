@@ -13,6 +13,8 @@ export const typeDefs = /* GraphQL */ `
   }
 
   enum Behavior {
+    swimming
+    sheltering
     feeding
     migrating
     resting

@@ -56,9 +56,11 @@ else
 fi
 
 # ── On-chain record count must match what is indexed ─────────────────────────
+# An address with no code answers eth_call with "0x" — a result, but an empty
+# one. Requiring at least one hex digit is what tells the two apart.
 onchain=$(curl -s -m 10 -X POST -H 'Content-Type: application/json' \
   -d "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"$REGISTRY\",\"data\":\"0xdbde207d\"},\"latest\"],\"id\":1}" \
-  "$RPC_URL" | grep -o '"result":"0x[0-9a-f]*"' | grep -o '0x[0-9a-f]*')
+  "$RPC_URL" | grep -oE '"result":"0x[0-9a-f]+"' | grep -oE '0x[0-9a-f]+')
 if [ -z "$onchain" ]; then
   # Silently skipping this check would hide a wrong REGISTRY or a dead RPC, and
   # the whole point of the monitor is that nothing fails quietly.

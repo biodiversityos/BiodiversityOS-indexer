@@ -8,9 +8,9 @@ import { startListener } from "./listener.js";
 import { checkHealth } from "./health.js";
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS as `0x${string}`;
-const CELO_RPC_URL = process.env.CELO_RPC_URL ?? "https://forno.celo.org";
-const START_BLOCK = BigInt(process.env.START_BLOCK ?? "0");
-const PORT = Number(process.env.PORT ?? 4000);
+const CELO_RPC_URL = process.env.CELO_RPC_URL || "https://forno.celo.org";
+const START_BLOCK = BigInt(process.env.START_BLOCK || "0");
+const PORT = Number(process.env.PORT || 4000);
 
 if (!CONTRACT_ADDRESS) throw new Error("CONTRACT_ADDRESS is required");
 

@@ -39,6 +39,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          # Two cores build the image from scratch; the 10m default cuts the
+          # connection mid-unpack and leaves the old container running.
+          command_timeout: 40m
           # The key is pinned to one service by a forced command on the server,
           # so this value is ignored and cannot be made to deploy another one.
           script: deploy

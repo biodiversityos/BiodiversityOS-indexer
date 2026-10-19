@@ -74,7 +74,13 @@ elif [ -n "${records:-}" ]; then
 fi
 
 # ── Backend ──────────────────────────────────────────────────────────────────
-curl -sf -m 10 "$BACKEND_INTERNAL/health" >/dev/null || fail "backend /health failed"
+# Empty means the upload service is not deployed on this host. A monitor that
+# reports a known-absent service on every run is a monitor people stop reading.
+if [ -n "$BACKEND_INTERNAL" ]; then
+  curl -sf -m 10 "$BACKEND_INTERNAL/health" >/dev/null || fail "backend /health failed"
+else
+  note "backend: not deployed, skipped"
+fi
 
 # ── Frontends must render real data, not just return 200 ─────────────────────
 app_html=$(curl -s -m 25 "$APP_URL")

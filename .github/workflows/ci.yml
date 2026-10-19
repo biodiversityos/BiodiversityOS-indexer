@@ -39,8 +39,6 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd ${{ secrets.INDEXER_DEPLOY_PATH }}
-            git pull origin main
-            docker compose build
-            docker compose up -d --force-recreate
+          # The key is pinned to one service by a forced command on the server,
+          # so this value is ignored and cannot be made to deploy another one.
+          script: deploy
